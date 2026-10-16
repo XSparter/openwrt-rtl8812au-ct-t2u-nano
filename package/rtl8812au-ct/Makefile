@@ -46,6 +46,12 @@ NOSTDINC_FLAGS+=-DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT -DBUILD_OPE
 # Vendor driver (2022) trips -Werror with newer GCC/backports: downgrade to warnings
 NOSTDINC_FLAGS+=-Wno-error
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	$(SED) 's/^EXTRA_CFLAGS += -Werror$$/EXTRA_CFLAGS += -Wno-error/' $(PKG_BUILD_DIR)/Makefile
+	grep -q -- '-Wno-error' $(PKG_BUILD_DIR)/Makefile
+endef
+
 define Build/Compile
 	+$(KERNEL_MAKE) $(PKG_JOBS) \
 		M="$(PKG_BUILD_DIR)" \
