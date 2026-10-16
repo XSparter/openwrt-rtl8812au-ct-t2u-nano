@@ -32,13 +32,23 @@ jobs:
           mv openwrt-sdk-* sdk
 
       - name: Add patched driver package
-        run: cp -r package/rtl8812au-ct sdk/package/
+        run: |
+          cp -r package/rtl8812au-ct sdk/package/
+          ls sdk/package/ | head -20
+          ls sdk/package/kernel/ | grep -E 'mac80211|cfg80211' || echo "NO mac80211 in SDK"
 
       - name: Compile kmod
         run: |
           cd sdk
           make defconfig
-          make package/rtl8812au-ct/compile -j$(nproc)
+          make package/rtl8812au-ct/compile -j1 V=s 2>&1 | tee ../build.log; test ${PIPESTATUS[0]} -eq 0
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       - name: Show resulting ipk
         run: find sdk/bin/packages -name 'kmod-rtl8812au-ct*.ipk' -exec ls -l {} \;
