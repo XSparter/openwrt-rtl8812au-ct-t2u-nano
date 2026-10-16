@@ -21,11 +21,14 @@ jobs:
 
       - name: Download OpenWrt SDK 24.10.8 (ramips/mt7621)
         run: |
-          wget -q https://downloads.openwrt.org/releases/24.10.8/targets/ramips/mt7621/openwrt-sdk-24.10.8-ramips-mt7621_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+          wget -q https://downloads.openwrt.org/releases/24.10.8/targets/ramips/mt7621/openwrt-sdk-24.10.8-ramips-mt7621_gcc-13.3.0_musl.Linux-x86_64.tar.zst -O sdk.tar.zst
+          ls -l sdk.tar.zst
 
       - name: Extract SDK
         run: |
-          tar --use-compress-program=unzstd -xf openwrt-sdk-*.tar.zst
+          unzstd -f sdk.tar.zst
+          tar -xf sdk.tar
+          ls -d openwrt-sdk-*
           mv openwrt-sdk-* sdk
 
       - name: Add patched driver package
