@@ -1,7 +1,8 @@
 --- a/os_dep/linux/usb_intf.c
 +++ b/os_dep/linux/usb_intf.c
-@@ -XXX,XXX +XXX,XXX @@
+@@ -200,6 +200,7 @@
  	{USB_DEVICE(0x2357, 0x011E), .driver_info = RTL8821}, /* TP Link - T2U Nano */
  	{USB_DEVICE(0x2357, 0x0122), .driver_info = RTL8821}, /* TP Link - T2U Nano */
 +	{USB_DEVICE(0x2357, 0x012e), .driver_info = RTL8821}, /* TP-Link - Archer T2U Nano (newer rev, RTL8811AU) */
  	{USB_DEVICE(0x2357, 0x0120), .driver_info = RTL8821}, /* TP Link - T2U Plus */
+ 	{USB_DEVICE(0x3823, 0x6249),.driver_info = RTL8821}, /* Obihai - OBiWiFi */
