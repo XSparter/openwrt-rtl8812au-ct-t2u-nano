@@ -1,0 +1,48 @@
+name: Build rtl8812au-ct (+ TP-Link T2U Nano 2357:012e)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "package/**"
+      - ".github/workflows/build-driver.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git libncurses-dev libssl-dev \
+            zlib1g-dev unzip python3 zstd file wget gawk
+
+      - name: Download OpenWrt SDK 24.10.8 (ramips/mt7621)
+        run: |
+          wget -q https://downloads.openwrt.org/releases/24.10.8/targets/ramips/mt7621/openwrt-sdk-24.10.8-ramips-mt7621_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+
+      - name: Extract SDK
+        run: |
+          tar --use-compress-program=unzstd -xf openwrt-sdk-*.tar.zst
+          mv openwrt-sdk-* sdk
+
+      - name: Add patched driver package
+        run: cp -r package/rtl8812au-ct sdk/package/
+
+      - name: Compile kmod
+        run: |
+          cd sdk
+          make defconfig
+          make package/rtl8812au-ct/compile -j$(nproc)
+
+      - name: Show resulting ipk
+        run: find sdk/bin/packages -name 'kmod-rtl8812au-ct*.ipk' -exec ls -l {} \;
+
+      - name: Upload ipk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmod-rtl8812au-ct-t2u-nano
+          path: sdk/bin/packages/*/base/kmod-rtl8812au-ct*.ipk
+          if-no-files-found: error
