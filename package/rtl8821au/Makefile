@@ -31,6 +31,7 @@ define Build/Compile
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		KVER="$(LINUX_VERSION)" \
 		KSRC="$(LINUX_DIR)" \
+		KBUILD_EXTRA_SYMBOLS="$(KERNEL_BUILD_DIR)/symvers/mac80211.symvers" \
 		modules
 endef
 
