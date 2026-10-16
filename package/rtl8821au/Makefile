@@ -39,6 +39,7 @@ NOSTDINC_FLAGS := \
 	-Wno-error
 
 define Build/Compile
+	+$(MAKE) -C $(PKG_BUILD_DIR) clean >/dev/null 2>&1 || true
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		ARCH="$(LINUX_KARCH)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
