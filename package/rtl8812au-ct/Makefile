@@ -43,6 +43,8 @@ NOSTDINC_FLAGS := \
 	-Wno-error=stringop-overread
 
 NOSTDINC_FLAGS+=-DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT -DBUILD_OPENWRT
+# Vendor driver (2022) trips -Werror with newer GCC/backports: downgrade to warnings
+NOSTDINC_FLAGS+=-Wno-error
 
 define Build/Compile
 	+$(KERNEL_MAKE) $(PKG_JOBS) \
