@@ -48,7 +48,7 @@ NOSTDINC_FLAGS+=-Wno-error
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	$(SED) 's/^EXTRA_CFLAGS += -Werror$$/EXTRA_CFLAGS += -Wno-error/' $(PKG_BUILD_DIR)/Makefile
+	$(SED) 's/^EXTRA_CFLAGS += -Werror/EXTRA_CFLAGS += -Wno-error/' $(PKG_BUILD_DIR)/Makefile
 	grep -q -- '-Wno-error' $(PKG_BUILD_DIR)/Makefile
 endef
 
