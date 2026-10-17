@@ -179,7 +179,7 @@ See [Releases](../../releases). Built with the **OpenWrt 24.10.8 SDK, ramips/mt7
 
 | File | MD5 | What |
 |---|---|---|
-| `kmod-rtl8812au-ct_6.6.144.2022.10.26~9b2b203a-r3_mipsel_24kc.ipk` | `486656d19726ffcfed75c9f8ff938176` | Candela rtl8812au-ct + forced `012e` ID — legacy |
+| `kmod-rtl8812au-ct_6.6.144.2022.10.26.9b2b203a-r3_mipsel_24kc.ipk` | `486656d19726ffcfed75c9f8ff938176` | Candela rtl8812au-ct + forced `012e` ID — legacy |
 | `kmod-rtl8821au_6.6.144.5.12.5.2-r5_mipsel_24kc.ipk` | `f14239a83b8415319f349036d52d7cf9` | morrownr 8821AU/8811AU + `012e` ID + fwdl fix (r5, last vendor attempt) — legacy |
 
 Install (matching kernel only): `opkg install ./kmod-....ipk`. **Both are deprecated: you almost certainly want `kmod-rtw88-8822bu` instead.**
