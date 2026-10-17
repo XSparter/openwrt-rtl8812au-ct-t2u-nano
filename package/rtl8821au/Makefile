@@ -38,6 +38,21 @@ NOSTDINC_FLAGS := \
 	-include backport/backport.h \
 	-Wno-error
 
+USER_EXTRA_CFLAGS:=-I$(PKG_BUILD_DIR) -I$(PKG_BUILD_DIR)/include \
+	-Wno-error=return-type -Wno-error=maybe-uninitialized \
+	-Wno-error=unused-but-set-variable -Wno-error=array-bounds \
+	-Wno-error=stringop-overread -Wno-error=stringop-overflow \
+	-Wno-error=stringop-truncation -Wno-error=designated-init \
+	-Wno-error=incompatible-pointer-types -Wno-error=strict-prototypes \
+	-Wno-error=implicit-int -Wno-error=implicit-function-declaration
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	rm -f $(PKG_BUILD_DIR)/include/linux/wireless.h
+	$(SED) 's,-Wframe-larger-than=1648,-Wframe-larger-than=32768,' $(PKG_BUILD_DIR)/Makefile
+	$(SED) 's|#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0) && (LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0)))|#if 0|' $(PKG_BUILD_DIR)/os_dep/linux/ioctl_cfg80211.c
+endef
+
 define Build/Compile
 	+$(MAKE) -C $(PKG_BUILD_DIR) clean >/dev/null 2>&1 || true
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
@@ -45,7 +60,8 @@ define Build/Compile
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		KVER="$(LINUX_VERSION)" \
 		KSRC="$(LINUX_DIR)" \
-		USER_EXTRA_CFLAGS="$(NOSTDINC_FLAGS)" \
+		USER_EXTRA_CFLAGS="$(USER_EXTRA_CFLAGS)" \
+		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		KBUILD_EXTRA_SYMBOLS="$(KERNEL_BUILD_DIR)/symvers/mac80211.symvers" \
 		modules
 endef

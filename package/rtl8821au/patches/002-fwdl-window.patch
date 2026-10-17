@@ -1,0 +1,44 @@
+--- a/hal/rtl8812a/rtl8812a_hal_init.c
++++ b/hal/rtl8812a/rtl8812a_hal_init.c
+@@ -172,7 +172,7 @@
+ {
+ 	int ret = _SUCCESS;
+ 
+-	u32 blockSize_p1 = 196;	/* (Default) Phase #1 */
++	u32 blockSize_p1 = 64;	/* (Default) Phase #1 */
+ 	u32 blockSize_p2 = 8;	/* Phase #2 : Use 8-byte, if Phase#1 use big size to write FW. */
+ 	u32 blockSize_p3 = 1;	/* Phase #3 : Use 1-byte, the remnant of FW image. */
+ 	u32 blockCount_p1 = 0, blockCount_p2 = 0, blockCount_p3 = 0;
+@@ -186,12 +186,13 @@
+ 
+ 	for (i = 0; i < blockCount_p1; i++) {
+ 		ret = rtw_writeN(padapter,
+-				 (FW_START_ADDRESS + i * blockSize_p1),
++				 (FW_START_ADDRESS + ((i * blockSize_p1) & 0xFF)),
+ 				 blockSize_p1, (bufferPtr + i * blockSize_p1));
+ 		if (ret == _FAIL) {
+ 			RTW_ERR("====>%s %d i:%d\n", __func__, __LINE__, i);
+ 			goto exit;
+ 		}
++		rtw_msleep_os(3);
+ 	}
+ 
+ 	/* Phase #2 */
+@@ -203,7 +204,7 @@
+ 
+ 		for (i = 0; i < blockCount_p2; i++) {
+ 			ret = rtw_writeN(padapter,
+-					 (FW_START_ADDRESS + offset + i * blockSize_p2),
++					 (FW_START_ADDRESS + ((offset + i * blockSize_p2) & 0xFF)),
+ 					 blockSize_p2,
+ 					 (bufferPtr + offset + i * blockSize_p2));
+ 			if (ret == _FAIL)
+@@ -217,7 +218,7 @@
+ 		blockCount_p3 = remainSize_p2 / blockSize_p3;
+ 
+ 		for (i = 0 ; i < blockCount_p3 ; i++) {
+-			ret = rtw_write8(padapter, (FW_START_ADDRESS + offset + i), *(bufferPtr + offset + i));
++			ret = rtw_write8(padapter, (FW_START_ADDRESS + ((offset + i) & 0xFF)), *(bufferPtr + offset + i));
+ 			if (ret == _FAIL) {
+ 				RTW_ERR("====>%s %d i:%d\n", __func__, __LINE__, i);
+ 				goto exit;
