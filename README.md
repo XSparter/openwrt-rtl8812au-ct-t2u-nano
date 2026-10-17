@@ -144,6 +144,23 @@ Notes: 64 MB `curl` transfers, source-bound (`--interface`), single client. With
 4. Re-checking the USB-ID databases (linux-hardware.org) revealed the truth: **`2357:012e` = Archer T3U Nano, chipset RTL8812BU** — and mainline `rtw88` (`rtw8822bu`) had supported it all along.
 5. Installed `kmod-rtw88-8822bu` → STA and AP both tested working (evidence above). The last mystery (clients associating but no DHCP in AP mode) turned out to be the **fw4 zone issue**, not the driver.
 
+### The TP-Link USB-ID trap (cheat sheet)
+
+TP-Link reuses product names across completely different chipsets — the "T2U" vs "T3U" trap. This is the map that would have saved us the whole detour (and the panic):
+
+| USB ID | Product | Chipset | Correct driver on OpenWrt |
+|---|---|---|---|
+| `2357:011e` | Archer T2U Nano (early rev) | RTL8811AU (RTL8821 series) | stock feed `kmod-rtl8812au-ct` |
+| `2357:0122` | Archer T2U Nano (later rev) | RTL8811AU (RTL8821 series) | stock feed `kmod-rtl8812au-ct` |
+| `2357:0120` | Archer T2U Plus | RTL8811AU (RTL8821 series) | stock feed `kmod-rtl8812au-ct` |
+| `2357:012d` | Archer T3U (v1) | RTL8812BU / RTL8822BU family | **mainline `rtw88`** (`kmod-rtw88-8822bu`) |
+| `2357:012e` | **Archer T3U Nano** | RTL8812BU / RTL8822BU family | **mainline `rtw88`** (`kmod-rtw88-8822bu`) ← this dongle |
+| `2357:0138` | Archer T3U Plus | RTL8812BU / RTL8822BU family | **mainline `rtw88`** (`kmod-rtw88-8822bu`) |
+
+The "T2U" line is RTL8821/8811AU silicon — which is why we started building `rtl8821au`/`rtl8812au-ct` when we saw `012e`… but `012e` belongs to the **T3U** line, a different chip entirely.
+
+**Lesson (the whole point of this section):** when an unknown USB Wi-Fi ID shows up, check **linux-hardware.org first** — it tells you which *in-kernel* driver already claims that ID, before anyone builds anything. (Also amusing in hindsight: the correct out-of-tree driver, morrownr's `88x2bu`, already had `012e` in its list — we patched the wrong two.)
+
 The legacy packages stay in the tree for reference; their prebuilt `.ipk`s are published in [Releases](../../releases) marked **deprecated**.
 
 ## Build it yourself (legacy packages only)

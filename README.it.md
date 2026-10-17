@@ -144,6 +144,23 @@ Note: trasferimenti `curl` da 64 MB, con source-binding (`--interface`), un clie
 4. Ricontrollando i database dei USB ID (linux-hardware.org) è emersa la verità: **`2357:012e` = Archer T3U Nano, chipset RTL8812BU** — e il mainline `rtw88` (`rtw8822bu`) lo supportava già da sempre.
 5. Installato `kmod-rtw88-8822bu` → STA e AP testati e funzionanti (prove sopra). L'ultimo mistero (i client si associavano ma niente DHCP in AP) era il **problema delle zone fw4**, non il driver.
 
+### La trappola degli ID USB TP-Link (cheat sheet)
+
+TP-Link ricicla i nomi dei prodotti su chipset completamente diversi — la trappola "T2U" vs "T3U". Questa è la mappa che ci avrebbe risparmiato tutto il giro (e il panic):
+
+| USB ID | Prodotto | Chipset | Driver corretto su OpenWrt |
+|---|---|---|---|
+| `2357:011e` | Archer T2U Nano (prima rev) | RTL8811AU (serie RTL8821) | `kmod-rtl8812au-ct` dei feed stock |
+| `2357:0122` | Archer T2U Nano (rev successiva) | RTL8811AU (serie RTL8821) | `kmod-rtl8812au-ct` dei feed stock |
+| `2357:0120` | Archer T2U Plus | RTL8811AU (serie RTL8821) | `kmod-rtl8812au-ct` dei feed stock |
+| `2357:012d` | Archer T3U (v1) | famiglia RTL8812BU / RTL8822BU | **mainline `rtw88`** (`kmod-rtw88-8822bu`) |
+| `2357:012e` | **Archer T3U Nano** | famiglia RTL8812BU / RTL8822BU | **mainline `rtw88`** (`kmod-rtw88-8822bu`) ← questa chiavetta |
+| `2357:0138` | Archer T3U Plus | famiglia RTL8812BU / RTL8822BU | **mainline `rtw88`** (`kmod-rtw88-8822bu`) |
+
+La linea "T2U" è silicio RTL8821/8811AU — ecco perché ci siamo messi a compilare driver `rtl8821au`/`rtl8812au-ct` quando abbiamo visto `012e`… ma `012e` appartiene alla linea **T3U**, un chip completamente diverso.
+
+**Lezione (il senso di tutta questa sezione):** quando salta fuori un ID USB Wi-Fi sconosciuto, controlla **prima linux-hardware.org** — ti dice quale driver *in-kernel* rivendica già quell'ID, prima che qualcuno si metta a compilare qualsiasi cosa. (E ironia della sorte: il driver out-of-tree giusto, l'`88x2bu` di morrownr, aveva già `012e` in lista — noi abbiamo patchato i due sbagliati.)
+
 I pacchetti legacy restano nell'albero per riferimento; i loro `.ipk` precompilati sono pubblicati nelle [Releases](../../releases) e marcati **deprecati**.
 
 ## Compilalo da solo (solo pacchetti legacy)
